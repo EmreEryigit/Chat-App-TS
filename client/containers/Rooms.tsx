@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import EVENTS from "../config/events";
 import { useSockets } from "../context/socket.context";
-
+import styles from "../styles/Room.module.css"
 const Rooms = () => {
     const { socket, roomId, rooms } = useSockets();
     const newRoomRef = useRef<HTMLInputElement | null>(null);
@@ -14,12 +14,26 @@ const Rooms = () => {
             newRoomRef.current.value = "";
         }
     };
+
+    const handleJoinRoom = (key: string) => {
+      if(key === roomId) return
+      socket.emit(EVENTS.CLIENT.JOIN_ROOM, key)
+    }
     return (
-        <nav>
-            <div>
+        <nav className={styles.wrapper}>
+            <div className={styles.createRoomWrapper}>
                 <input ref={newRoomRef} placeholder="Room name" />
-                <button onClick={handleCreateRoom}>Create Room</button>
+                <button className="cta" onClick={handleCreateRoom}>Create Room</button>
             </div>
+        <ul className={styles.roomList}> 
+
+            {Object.keys(rooms).map(key => {
+              return <div key={key}>
+                <button disabled={key === roomId} title={`Join ${rooms[key].name}`}  onClick={() => handleJoinRoom(key)}>{rooms[key].name}</button>
+                </div>
+            })}
+                        
+        </ul>
         </nav>
     );
 };
